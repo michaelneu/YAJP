@@ -5,17 +5,15 @@ repositories {
 }
 
 dependencies {
-	// required for all compile steps as we're using
-	// junit static method calls inside the mocker
-    compile "junit:junit:4.12"
+	testCompile "junit:junit:4.12"
 }
 
 sourceSets {
-    main {
-        java {
-            srcDir 'src'
-            exclude 'de/othr/test'
-        }
+	main {
+		java {
+			srcDir 'src'
+			exclude 'de/othr/test'
+		}
 	}
 	
 	test {

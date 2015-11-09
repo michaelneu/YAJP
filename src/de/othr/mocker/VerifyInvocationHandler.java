@@ -2,7 +2,6 @@ package de.othr.mocker;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import static org.junit.Assert.assertTrue;
 
 /**
  * An implementation of InvocationHandler which tests whether the given method
@@ -40,14 +39,15 @@ class VerifyInvocationHandler extends MockInvocationHandler {
 			count = methodCallCount.get(representation);
 		}
 		
-		assertTrue(
-			String.format(
-				"Verification failure: Expected number of calls %d but was %d",
-				repeatCount.getCount(),
-				count
-			), 
-			repeatCount.matchesCount(count)
-		);
+		if (!repeatCount.matchesCount(count)) {
+			throw new AssertionError(
+					String.format(
+						"Verification failure: Expected number of calls %d but was %d",
+						repeatCount.getCount(),
+						count
+					)
+				);
+		}
 		
 		return defaultReturnValue;
 	}
