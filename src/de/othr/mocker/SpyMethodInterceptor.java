@@ -3,13 +3,15 @@ package de.othr.mocker;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import net.sf.cglib.proxy.MethodProxy;
+
 /**
  * An implementation of InvocationHandler which passes all methods to the 
  * object it spies on, but keeps track of what was called already. 
  * 
  * @author Michael Neu
  */
-class SpyInvocationHandler extends MockInvocationHandler {
+class SpyMethodInterceptor extends MockMethodInterceptor {
 	private final Object target;
 	
 	/**
@@ -17,13 +19,14 @@ class SpyInvocationHandler extends MockInvocationHandler {
 	 * 
 	 * @param object Which object to spy on
 	 */
-	public SpyInvocationHandler(Object object) {
+	public SpyMethodInterceptor(Object object) {
 		target = object;
 	}
 	
 	@Override
-	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-		Object defaultReturnValue = super.invoke(proxy, method, args);
+	public Object intercept(Object object, Method method, Object[] args, MethodProxy proxy) 
+			throws Throwable {
+		Object defaultReturnValue = super.intercept(object, method, args, proxy);
 		
 		try {
 			defaultReturnValue = method.invoke(target, args);

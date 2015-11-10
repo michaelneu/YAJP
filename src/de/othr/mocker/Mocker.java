@@ -1,8 +1,5 @@
 package de.othr.mocker;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Proxy;
-
 /**
  * A basic mocking library implementation. Supports basic mocking, JUnit 
  * method call verification and object spying. 
@@ -20,7 +17,7 @@ public final class Mocker {
 	 * @return A mock
 	 */
 	public static <T> T mock(Class<T> clazz) {
-		return ProxyFactory.getProxy(clazz, new MockInvocationHandler());
+		return ProxyFactory.getProxy(clazz, new MockMethodInterceptor());
 	}
 	
 	/**
@@ -31,7 +28,7 @@ public final class Mocker {
 	 * @return A spy
 	 */
 	public static <T> T spy(T object) {
-		return ProxyFactory.getProxy(object, new SpyInvocationHandler(object));
+		return ProxyFactory.getProxy(object, new SpyMethodInterceptor(object));
 	}
 	
 	/**
@@ -56,18 +53,9 @@ public final class Mocker {
 	 * @return A verification mock
 	 */
 	public static <T> T verify(T object, RepeatCount count) {
-		if (object instanceof Proxy) {
-			InvocationHandler handler = Proxy.getInvocationHandler(object);
-			MockInvocationHandler mock = ((MockInvocationHandler)handler),
-					verifier = mock.toVerifyInvocationHandler(count);
-					
-			return ProxyFactory.getProxy(object, verifier);
-		} else {
-			// in case we didn't get passed a Proxy-object we'll just hand 
-			// throw an AssertionError because verify will not work at all
-			
-			throw new AssertionError("Non-mock-object passed to Mocker.verify");
-		}
+		ProxyFactory.setVerificationMode(object, count);
+		
+		return object;
 	}
 	
 	/**

@@ -3,18 +3,22 @@ package de.othr.mocker;
 import java.lang.reflect.*;
 import java.util.HashMap;
 
+import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.MethodProxy;
+
 /**
  * An implementation of InvocationHandler which acts as a method call sink. 
  * 
  * @author Michael Neu
  */
-class MockInvocationHandler implements InvocationHandler {
+class MockMethodInterceptor implements MethodInterceptor {
 	protected HashMap<String, Integer> methodCallCount;
+	private RepeatCount repeatCount;
 	
 	/**
 	 * Initialize the invocation handler
 	 */
-	public MockInvocationHandler() {
+	public MockMethodInterceptor() {
 		methodCallCount = new HashMap<>();
 	}
 	
@@ -83,12 +87,39 @@ class MockInvocationHandler implements InvocationHandler {
 			methodCallCount.get(representation) + 1
 		);
 	}
+	
+	public void setVerificationFlag(RepeatCount count) {
+		repeatCount = count;
+	}
 
 	@Override
-	public Object invoke(Object proxy, Method method, Object[] args) 
+	public Object intercept(Object object, Method method, Object[] args, MethodProxy proxy) 
 			throws Throwable {
-		// add the method to the call counter
-		incrementCallCount(method, args);
+		if (repeatCount != null) {
+			String representation = getMethodStringRepresentation(method, args);
+			
+			int count = 0;
+			
+			if (methodCallCount.containsKey(representation)) {
+				count = methodCallCount.get(representation);
+			}
+			
+			if (!repeatCount.matchesCount(count)) {
+				throw new AssertionError(
+						String.format(
+							"Verification failure: Expected number of calls %d but was %d",
+							repeatCount.getCount(),
+							count
+						)
+					);
+			}
+			
+			// reset the "verification mode flag"
+			repeatCount = null;
+		} else {
+			// no flag set --> add the method to the call counter
+			incrementCallCount(method, args);
+		}
 
 		// return default values based on the method's return type
 		String type = method.getGenericReturnType()
@@ -107,9 +138,5 @@ class MockInvocationHandler implements InvocationHandler {
 			default: 
 				return null;
 		}
-	}
-	
-	public VerifyInvocationHandler toVerifyInvocationHandler(RepeatCount repeatCount) {
-		return new VerifyInvocationHandler(methodCallCount, repeatCount);
 	}
 }
