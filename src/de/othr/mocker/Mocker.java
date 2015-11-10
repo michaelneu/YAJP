@@ -64,9 +64,9 @@ public final class Mocker {
 			return ProxyFactory.getProxy(object, verifier);
 		} else {
 			// in case we didn't get passed a Proxy-object we'll just hand 
-			// out the original object. feature. 
+			// throw an AssertionError because verify will not work at all
 			
-			return object;
+			throw new AssertionError("Non-mock-object passed to Mocker.verify");
 		}
 	}
 	

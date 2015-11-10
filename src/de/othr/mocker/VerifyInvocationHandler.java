@@ -30,7 +30,8 @@ class VerifyInvocationHandler extends MockInvocationHandler {
 		Object defaultReturnValue = super.invoke(proxy, method, args);
 		
 		// get how often the method was called already
-		methodCallCount = callMap;
+		// make sure to not modify the original callMap
+		methodCallCount = new HashMap<>(callMap);
 		String representation = getMethodStringRepresentation(method, args);
 		
 		int count = 0;
