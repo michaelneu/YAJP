@@ -120,7 +120,7 @@ class MockMethodInterceptor implements MethodInterceptor {
 			// no flag set --> add the method to the call counter
 			incrementCallCount(method, args);
 		}
-
+		
 		// return default values based on the method's return type
 		String type = method.getGenericReturnType()
 		                    .getTypeName();

@@ -29,6 +29,8 @@ public class MockerTest extends TestCase {
 
 		assertEquals(26, list.size());
 		assertEquals(list.size(), spyList.size());
+		
+		verify(spyList).add('a');
 	}
 
 	@Test
