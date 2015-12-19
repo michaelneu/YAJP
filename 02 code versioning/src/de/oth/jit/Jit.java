@@ -1,11 +1,21 @@
 package de.oth.jit;
 
+import java.util.List;
+
 public final class Jit {
+	public static void _main(String[] args) {
+		// _main(new String[] { "init" });
+		_main(new String[] { "add", "a/b/c" });
+		_main(new String[] { "add", "a/b/c" });
+		_main(new String[] { "add", "a/b/d" });
+		_main(new String[] { "tree" });
+		// _main(new String[] { "remove", "a/b/c" });
+		// _main(new String[] { "remove", "a/b/d" });
+	}
+	
 	public static void main(String[] args) {
-		// args = new String[] { "init" };
-		// args = new String[] { "add", "a/b/c" };
-		// args = new String[] { "add", "a/b/d" };
-		args = new String[] { "commit", "my message" };
+		args = new String[] { "history" };
+		// args = new String[] { "commit", "my message" };
 		
 		String option = args.length > 0 ? args[0] : null;
 		
@@ -25,7 +35,11 @@ public final class Jit {
 						break;
 						
 					case "tree":
-						tree();
+						printTree();
+						break;
+						
+					case "history": 
+						printRevisions();
 						break;
 						
 					default: 
@@ -89,6 +103,7 @@ public final class Jit {
 			"\n" + 
 			"    help              Display this help\n" +
 			"    tree              Display the staging tree\n" +
+			"    history           Print all commits so far\n" +
 			"\n" +  
 			"    init              Initialize an empty repository\n" +
 			"    add <path>        Add a path (recursively) to the repository\n" + 
@@ -127,16 +142,44 @@ public final class Jit {
 	}
 	
 	public static void commit(String message) {
+		Repository repo = RepositoryFactory.deserialize();
 		
+		String revision = repo.commit(message);
+		
+		if (revision == null) {
+			System.out.println("Nothing to commit");
+		} else {
+			System.out.println("HEAD is now at " + revision);
+
+			RepositoryFactory.serialize(repo);
+		}
 	}
 	
 	public static void checkout(String revision) {
 		
 	}
 	
-	public static void tree() {
+	public static void printTree() {
 		Repository repo = RepositoryFactory.deserialize();
 		
-		System.out.println(repo);
+		System.out.println(repo.getStagingTree());
+	}
+	
+	public static void printRevisions() {
+		if (Repository.isInitialized()) {
+			Repository repo = RepositoryFactory.deserialize();
+			
+			List<JitRevision> revisions = repo.getRevisions();
+			
+			if (revisions.size() > 0) {
+				for (JitRevision revision : revisions) {
+					System.out.println(revision.getRevision() + " " + revision.getMessage());
+				}
+			} else {
+				System.out.println("No revisions yet");
+			}
+		} else {
+			System.out.println("Repository not initialized");
+		}
 	}
 }

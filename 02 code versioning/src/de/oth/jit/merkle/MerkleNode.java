@@ -3,7 +3,7 @@ package de.oth.jit.merkle;
 import java.io.Serializable;
 import java.util.List;
 
-import de.oth.jit.commit.CommitElement;
+import de.oth.jit.commit.Commitable;
 import de.oth.jit.hashing.Hashable;
 
 abstract class MerkleNode implements Hashable, Serializable {
@@ -26,5 +26,5 @@ abstract class MerkleNode implements Hashable, Serializable {
 	}
 	
 	public abstract int size();
-	public abstract List<CommitElement> flatten();
+	public abstract List<Commitable> flatten();
 }

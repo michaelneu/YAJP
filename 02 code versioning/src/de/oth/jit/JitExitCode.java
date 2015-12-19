@@ -1,9 +1,10 @@
 package de.oth.jit;
 
 public enum JitExitCode {
-	// cli errors
-	CLI_PARSER_ERROR(1),
-	REPO_NOT_INITIALIZED(2),
+	// general errors
+	STAGING_TREE_CORRUPTED(1),
+	CLI_PARSER_ERROR(2),
+	REPO_NOT_INITIALIZED(3),
 	
 	// jit-add errors
 	ADD_FILE_ERROR(20),

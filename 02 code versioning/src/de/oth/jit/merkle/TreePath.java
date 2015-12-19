@@ -11,11 +11,11 @@ final class TreePath {
 	private final List<String> poppedParts;
 	
 	public TreePath(String path) {
-		this.path = path;
+		this.path = path.replace("\\\\", "/");
 		
 		this.poppedParts = new ArrayList<>();
 		this.stack = new Stack<>();
-		String[] pathParts = path.replace("\\\\", "/").split("\\/");
+		String[] pathParts = this.path.split("\\/");
 		
 		for (int i = pathParts.length - 1; i >= 0; i--) {
 			this.stack.push(pathParts[i]);
@@ -27,7 +27,7 @@ final class TreePath {
 	}
 	
 	public String getCurrentPath() {
-		return String.join(File.pathSeparator, this.poppedParts);
+		return String.join(File.separator, this.poppedParts);
 	}
 	
 	public String pop() {

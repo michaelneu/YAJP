@@ -7,11 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.oth.jit.JitExitCode;
-import de.oth.jit.commit.CommitElement;
+import de.oth.jit.commit.Commitable;
 import de.oth.jit.commit.CommitFile;
 import de.oth.jit.hashing.HashUtils;
 
-class MerkleFile extends MerkleNode {
+final class MerkleFile extends MerkleNode {
 	private static final long serialVersionUID = 1L;
 	
 	private String content;
@@ -37,7 +37,7 @@ class MerkleFile extends MerkleNode {
 	
 	@Override
 	public String toString() {
-		return String.format("{%s \\\\ %s}, align=center", this.name, this.hash);
+		return String.format("{%s \\\\ %s}, align=center", this.fullPath, this.hash);
 	}
 
 	@Override
@@ -46,10 +46,10 @@ class MerkleFile extends MerkleNode {
 	}
 	
 	@Override
-	public List<CommitElement> flatten() {
-		List<CommitElement> flattened = new ArrayList<>();
+	public List<Commitable> flatten() {
+		List<Commitable> flattened = new ArrayList<>();
 		
-		flattened.add(new CommitFile(this.fullPath, this.content, this.hash));
+		flattened.add(new CommitFile(this.fullPath, getName(), this.hash, this.content));
 		
 		return flattened;
 	}

@@ -6,10 +6,10 @@ import java.util.stream.Collectors;
 
 import de.oth.jit.JitExitCode;
 import de.oth.jit.commit.CommitDirectory;
-import de.oth.jit.commit.CommitElement;
+import de.oth.jit.commit.Commitable;
 import de.oth.jit.hashing.HashUtils;
 
-class MerkleDirectory extends MerkleNode {
+final class MerkleDirectory extends MerkleNode {
 	private static final long serialVersionUID = 1L;
 	
 	private List<MerkleNode> children;
@@ -37,13 +37,13 @@ class MerkleDirectory extends MerkleNode {
 			if (node == null) {
 				// insert the file into the tree
 				
-				this.children.add(new MerkleFile(path.getFullPath(), top));
+				this.children.add(new MerkleFile(path.getCurrentPath(), top));
 			} else {
-				// we already head a similar element, update if possible
+				// we already had a similar element, update if possible
 				if (node instanceof MerkleFile) {
 					((MerkleFile)node).updateContent();
 				} else {
-					System.out.println(String.format("Can't update file '%s'", path.getFullPath()));
+					System.out.println(String.format("Can't update file '%s'", path.getCurrentPath()));
 					System.exit(JitExitCode.ADD_FILE_UPDATE_ERROR.getCode());
 				}
 			}
@@ -53,14 +53,15 @@ class MerkleDirectory extends MerkleNode {
 			
 			if (subtree == null) {
 				// sutree not found in tree, add a new subtree
-				MerkleDirectory directory = new MerkleDirectory(path.getFullPath(), top);
+				
+				MerkleDirectory directory = new MerkleDirectory(path.getCurrentPath(), top);
 				directory.add(path);
 				
 				this.children.add(directory);
 			} else if (subtree instanceof MerkleDirectory) {
 				((MerkleDirectory)subtree).add(path);
 			} else {
-				System.out.println(String.format("Unable to add '%s'", path.getFullPath()));
+				System.out.println(String.format("Unable to add '%s'", path.getCurrentPath()));
 				System.exit(JitExitCode.ADD_FILE_ERROR.getCode());
 			}
 		}
@@ -130,16 +131,23 @@ class MerkleDirectory extends MerkleNode {
 	}
 	
 	@Override
-	public List<CommitElement> flatten() {
-		List<CommitElement> children = new ArrayList<>();
+	public List<Commitable> flatten() {
+		List<Commitable> recursiveFlattenedChildren = new ArrayList<>();
 		
-		children.add(new CommitDirectory(this.fullPath, this.getHash()));
+		List<Commitable> layerChildren = this.children.stream()
+													.map(e -> e.flatten().stream()
+																		 .findFirst()
+																		 .orElse(null))
+													.filter(e -> e != null)
+													.collect(Collectors.toList());
+		
+		recursiveFlattenedChildren.add(new CommitDirectory(this.fullPath, getName(), this.getHash(), layerChildren));
 		
 		for (MerkleNode node : this.children) {
-			children.addAll(node.flatten());
+			recursiveFlattenedChildren.addAll(node.flatten());
 		}
 		
-		return children;
+		return recursiveFlattenedChildren;
 	}
 	
 	@Override
@@ -150,6 +158,6 @@ class MerkleDirectory extends MerkleNode {
 			output += String.format("[%s] ", node.toString());
 		}
 		
-		return String.format("{%s \\\\ %s}, draw, align=center %s", getName(), getHash(), output);
+		return String.format("{%s \\\\ %s}, draw, align=center %s", this.fullPath, getHash(), output);
 	}
 }

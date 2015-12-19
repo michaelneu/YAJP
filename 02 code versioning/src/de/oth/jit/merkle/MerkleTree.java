@@ -3,15 +3,15 @@ package de.oth.jit.merkle;
 import java.io.Serializable;
 import java.util.List;
 
-import de.oth.jit.commit.CommitElement;
+import de.oth.jit.commit.Commitable;
 
-public class MerkleTree implements Serializable {
+public final class MerkleTree implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	private MerkleDirectory root;
 	
 	public MerkleTree() {
-		root = new MerkleDirectory("", ".");
+		root = new MerkleDirectory("jit repository", ".");
 	}
 	
 	public void add(String path) {
@@ -23,7 +23,7 @@ public class MerkleTree implements Serializable {
 		root.removeEmptyDirectories();
 	}
 
-	public List<CommitElement> flatten() {
+	public List<Commitable> flatten() {
 		return root.flatten();
 	}
 
