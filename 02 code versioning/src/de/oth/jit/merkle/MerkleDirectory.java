@@ -13,17 +13,36 @@ import de.oth.jit.merkle.error.ElementAddException;
 import de.oth.jit.merkle.error.ElementRemoveException;
 import de.oth.jit.merkle.error.ElementUpdateException;
 
+/**
+ * This class represents a directory in the merkle tree, it's hash will be the
+ * hash of its children's hashes. 
+ * 
+ * @author Michael Neu
+ */
 final class MerkleDirectory extends MerkleNode {
 	private static final long serialVersionUID = 4631714828428011091L;
 	
 	private List<MerkleNode> children;
 	
+	/**
+	 * Initialize the directory with a path and the path's basename. 
+	 * 
+	 * @param fullPath Which path to use
+	 * @param name     Which basename to use
+	 */
 	public MerkleDirectory(String fullPath, String name) {
 		super(fullPath, name);
 		
 		this.children = new ArrayList<>();
 	}
 	
+	/**
+	 * Find an element by its basename in the directory's children. 
+	 * 
+	 * @param element Which element to look for
+	 * 
+	 * @return The found element or null if there's no such element. 
+	 */
 	private MerkleNode find(String element) {
 		return this.children.stream()
 							.filter(e -> e.getName().equals(element))
@@ -31,6 +50,18 @@ final class MerkleDirectory extends MerkleNode {
 							.orElse(null);
 	}
 	
+	/**
+	 * Add a file to the directory by following its path down the tree. 
+	 * Required {@link de.oth.jit.merkle.MerkleDirectory}s will be created
+	 * automatically. 
+	 * 
+	 * @param path The file to add
+	 * 
+	 * @throws ElementAddException
+	 * @throws ElementUpdateException
+	 * @throws NoSuchAlgorithmException
+	 * @throws IOException
+	 */
 	public void add(TreePath path) throws ElementAddException, ElementUpdateException, NoSuchAlgorithmException, IOException {
 		String top = path.pop();
 		
@@ -69,6 +100,13 @@ final class MerkleDirectory extends MerkleNode {
 		}
 	}
 	
+	/**
+	 * Remove a file from the directory by following its path down the tree. 
+	 * 
+	 * @param path Which file to add
+	 * 
+	 * @throws ElementRemoveException
+	 */
 	public void remove(TreePath path) throws ElementRemoveException {
 		String top = path.pop();
 		
@@ -96,6 +134,9 @@ final class MerkleDirectory extends MerkleNode {
 		return this.children.size();
 	}
 	
+	/**
+	 * Recursively remove empty directories in this node. 
+	 */
 	public void removeEmptyDirectories() {
 		for (MerkleDirectory directory : this.children.stream()
 			                                          .filter(e -> e instanceof MerkleDirectory)
@@ -156,6 +197,13 @@ final class MerkleDirectory extends MerkleNode {
 		return recursiveFlattenedChildren;
 	}
 	
+	/**
+	 * Create an ASCII styled tree of the merkle tree. 
+	 * 
+	 * @param padding Which white space padding to start with.
+	 *  
+	 * @return The ASCII tree
+	 */
 	public String toString(String padding) {
 		String output = padding.substring(0, padding.length() - 1) + "+-- " + getName() + "\n";
 		

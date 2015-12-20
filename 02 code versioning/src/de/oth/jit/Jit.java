@@ -6,9 +6,19 @@ import de.oth.jit.repository.JitRevision;
 import de.oth.jit.repository.JitRevisionCollection;
 import de.oth.jit.repository.Repository;
 import de.oth.jit.repository.RepositoryFactory;
-import de.oth.jit.repository.RepositoryUtils;
 
+/**
+ * A wrapper for the Jit CVS. Provides a solid command line interface and a 
+ * rich Java API for future use.  
+ * 
+ * @author Michael Neu
+ */
 public final class Jit {
+	/**
+	 * The main program entry point. 
+	 * 
+	 * @param args Program arguments given in the command line
+	 */
 	public static void main(String[] args) {
 		String option = args.length > 0 ? args[0] : null;
 		
@@ -79,14 +89,25 @@ public final class Jit {
 		}
 	}
 	
+	/**
+	 * Display a warning that the given option was used in a wrong way. 
+	 * 
+	 * @param option Which option was invalid
+	 */
 	private static void warnInvalidArgument(String option) {
 		System.out.println("Invalid argument. See \"java de.oth.jit.Jit help\" for further information. ");
 	}
 	
+	/**
+	 * Display a warning that the given options were too few/many. 
+	 */
 	private static void warnInvalidArgumentCount() {
 		System.out.println("Invalid argument count passed. See \"java.de.oth.jit.Jit help\" for further information. ");
 	}
 	
+	/**
+	 * Display the help on the console. 
+	 */
 	private static void printHelp() {
 		System.out.println(
 			"Jit code versioning\n" +
@@ -104,6 +125,9 @@ public final class Jit {
 		);
 	}
 	
+	/**
+	 * Initialize an empty repository if possible. 
+	 */
 	public static void init() {
 		if (Repository.isInitialized()) {
 			System.out.println("Repository already initialized");
@@ -115,6 +139,11 @@ public final class Jit {
 		}
 	}
 	
+	/**
+	 * Add a file to the staging area. 
+	 * 
+	 * @param path Which file to add
+	 */
 	public static void add(String path) {
 		try {
 			Repository repo = RepositoryFactory.deserialize();
@@ -129,6 +158,11 @@ public final class Jit {
 		}
 	}
 	
+	/**
+	 * Remove a file from the staging area. 
+	 * 
+	 * @param path Which file to remove
+	 */
 	public static void remove(String path) {
 		try {
 			Repository repo = RepositoryFactory.deserialize();
@@ -141,6 +175,11 @@ public final class Jit {
 		}
 	}
 	
+	/**
+	 * Commit the current staging area for later checkouts. 
+	 * 
+	 * @param message How to name the commit
+	 */
 	public static void commit(String message) {
 		
 		try {
@@ -160,6 +199,11 @@ public final class Jit {
 		}
 	}
 	
+	/**
+	 * Delete all contents in the workspace and checkout a previous commit. 
+	 * 
+	 * @param revision Which revision to checkout
+	 */
 	public static void checkout(String revision) {
 		try {
 			Repository repo = RepositoryFactory.deserialize();
@@ -172,6 +216,9 @@ public final class Jit {
 		}
 	}
 	
+	/**
+	 * Display the current staging tree on the console. 
+	 */
 	public static void printStagingTree() {
 		try {
 			Repository repo = RepositoryFactory.deserialize();
@@ -182,6 +229,9 @@ public final class Jit {
 		}
 	}
 	
+	/**
+	 * Display all previous revisions on the console. 
+	 */
 	public static void printRevisions() {
 		if (Repository.isInitialized()) {
 			try {

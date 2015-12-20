@@ -9,7 +9,26 @@ import de.oth.jit.error.CommitFileCorruptedException;
 import de.oth.jit.error.StagingTreeCorruptedException;
 import de.oth.jit.repository.RepositoryUtils;
 
+/**
+ * This class provides utilities to manage commits. It supports creating and
+ * restoring committed files. 
+ * 
+ * @author Michael Neu
+ */
 public class CommitUtils {
+	/**
+	 * Create a revision from a list of commitable files.  
+	 * 
+	 * @param objectsDirectory In which directory to save the committed files
+	 * @param elements         Which files to commit
+	 * @param message          Which message to use for the commit
+	 * 
+	 * @return The commit's revision 
+	 * 
+	 * @throws StagingTreeCorruptedException
+	 * @throws NoSuchAlgorithmException
+	 * @throws IOException
+	 */
 	public static String createCommit(File objectsDirectory, List<Commitable> elements, String message) throws StagingTreeCorruptedException, NoSuchAlgorithmException, IOException {
 		if (elements.size() > 0) {
 			// the first element will be the root of the repository, it _will_ be there
@@ -37,6 +56,16 @@ public class CommitUtils {
 		}
 	}
 	
+	/**
+	 * Restore the state of a previous revision by restoring from the 
+	 * revision's commit file. 
+	 * 
+	 * @param commitFile    The file containing the commit information
+	 * @param baseDirectory The repository's base directory
+	 * 
+	 * @throws CommitFileCorruptedException
+	 * @throws IOException
+	 */
 	public static void restoreFromCommit(File commitFile, File baseDirectory) throws CommitFileCorruptedException, IOException {
 		if (commitFile.exists()) {
 			List<String> commitLines = RepositoryUtils.readFileLines(commitFile);
@@ -49,6 +78,16 @@ public class CommitUtils {
 		}
 	}
 	
+	/**
+	 * Restore the state of a previous revision from a file containing 
+	 * information about the structure of a directory. 
+	 * 
+	 * @param content     The file's content
+	 * @param currentPath At which part we're right now
+	 * 
+	 * @throws CommitFileCorruptedException
+	 * @throws IOException
+	 */
 	private static void restoreFromFile(List<String> content, File currentPath) throws CommitFileCorruptedException, IOException {
 		// remove the first line as it's not relevant for restoring
 		content.remove(0);
@@ -64,7 +103,7 @@ public class CommitUtils {
 						
 						List<String> directoryFileContents = RepositoryUtils.readFileLines(directoryCommitPath);
 						
-						// we don't need to create directories because a file will do this
+						// we don't need to create directories because a file inside the directory will do this
 						restoreFromFile(directoryFileContents, directoryRealPath);
 						break;
 					

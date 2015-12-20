@@ -4,10 +4,24 @@ import java.security.NoSuchAlgorithmException;
 
 import de.oth.jit.error.StagingTreeCorruptedException;
 
+/**
+ * This object defines general information about the commit like its revision,
+ * commit message and repository contents. 
+ * 
+ * @author Michael Neu
+ */
 public final class Commit implements Commitable {
 	private final String message;
 	private final CommitDirectory root;
 	
+	/**
+	 * Initialize a new commit. 
+	 * 
+	 * @param message The commit message
+	 * @param root    The root directory of the repository
+	 * 
+	 * @throws StagingTreeCorruptedException
+	 */
 	public Commit(String message, Commitable root) throws StagingTreeCorruptedException {
 		this.message = message;
 		

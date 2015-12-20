@@ -16,6 +16,12 @@ import de.oth.jit.merkle.error.ElementAddException;
 import de.oth.jit.merkle.error.ElementRemoveException;
 import de.oth.jit.merkle.error.ElementUpdateException;
 
+/**
+ * This class represents the JIT repository. It contains the staging tree and 
+ * the history of commits done so far. 
+ * 
+ * @author Michael Neu
+ */
 public final class Repository implements Serializable {
 	private static final long serialVersionUID = -7993375828050549804L;
 
@@ -26,6 +32,9 @@ public final class Repository implements Serializable {
 	private boolean committed;
 	private JitRevisionCollection revisions;
 
+	/**
+	 * Initialize the repository
+	 */
 	public Repository() {
 		this.baseDirectory = new File(RepositoryUtils.getCurrentWorkingDirectory());
 		
@@ -39,10 +48,19 @@ public final class Repository implements Serializable {
 		this.revisions = new JitRevisionCollection();
 	}
 	
+	/**
+	 * Check if the repository has already been initialized. 
+	 * 
+	 * @return Whether the repository has been initialized or not
+	 */
 	public static boolean isInitialized() {
-		return new File(".jit").exists();
+		return new File(RepositoryUtils.getCurrentWorkingDirectory(), ".jit").exists();
 	}
 	
+	/**
+	 * Initialize the repository thus creating the <i>.jit</i>, <i>.jit/objects</i>
+	 * and the <i>.jit/staging</i> directories. 
+	 */
 	public void init() {
 		if (!this.objects.exists()) {
 			this.objects.mkdirs();
@@ -55,18 +73,46 @@ public final class Repository implements Serializable {
 		this.stagingTree = new MerkleTree();
 	}
 	
+	/**
+	 * Add a file to the repository's staging area. 
+	 * 
+	 * @param path Which file to add
+	 * 
+	 * @throws ElementAddException
+	 * @throws ElementUpdateException
+	 * @throws NoSuchAlgorithmException
+	 * @throws IOException
+	 */
 	public void add(String path) throws ElementAddException, ElementUpdateException, NoSuchAlgorithmException, IOException {
 		this.committed = false;
 		
 		this.stagingTree.add(path);
 	}
 	
+	/**
+	 * Remove a file from the repository's staging area. 
+	 * 
+	 * @param path Which file to remove
+	 * 
+	 * @throws ElementRemoveException
+	 */
 	public void remove(String path) throws ElementRemoveException {
 		this.committed = false;
 		
 		this.stagingTree.remove(path);
 	}
 	
+	/**
+	 * Commit the current staging area. 
+	 * 
+	 * @param message The message describing the commit
+	 * 
+	 * @return The commits revision hash
+	 * 
+	 * @throws StagingTreeCorruptedException
+	 * @throws NoSuchAlgorithmException
+	 * @throws IOException
+	 */
 	public String commit(String message) throws StagingTreeCorruptedException, NoSuchAlgorithmException, IOException {
 		if (!this.committed) {
 			List<Commitable> elements = stagingTree.flatten();
@@ -82,6 +128,15 @@ public final class Repository implements Serializable {
 		}
 	}
 	
+	/**
+	 * Restore a previous commit's workspace state. 
+	 * 
+	 * @param revision Which revision to restore
+	 * 
+	 * @throws RevisionNotFoundException
+	 * @throws CommitFileCorruptedException
+	 * @throws IOException
+	 */
 	public void checkout(String revision) throws RevisionNotFoundException, CommitFileCorruptedException, IOException {
 		this.committed = false;
 		
@@ -94,10 +149,20 @@ public final class Repository implements Serializable {
 		}
 	}
 	
+	/**
+	 * Get the ASCII representation of the staging tree. 
+	 * 
+	 * @return The staging tree's ASCII tree
+	 */
 	public String getStagingTree() {
 		return stagingTree.toString();
 	}
 	
+	/**
+	 * Get the repository's commit history. 
+	 * 
+	 * @return The repository's commit history
+	 */
 	public JitRevisionCollection getRevisions() {
 		return this.revisions.clone();
 	}
