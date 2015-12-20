@@ -8,7 +8,7 @@ import de.oth.jit.commit.Commitable;
 import de.oth.jit.hashing.Hashable;
 
 abstract class MerkleNode implements Hashable, Serializable {
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = -2269390795642248508L;
 	
 	protected final String fullPath, name;
 	protected String hash;

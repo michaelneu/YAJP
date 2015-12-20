@@ -17,8 +17,9 @@ import de.oth.jit.merkle.error.ElementRemoveException;
 import de.oth.jit.merkle.error.ElementUpdateException;
 
 public final class Repository implements Serializable {
+	private static final long serialVersionUID = -7993375828050549804L;
+
 	public static final String STAGING_FILE_PATH = ".jit/staging/staging.ser";
-	private static final long serialVersionUID = 1L;
 	
 	private File baseDirectory, jit, objects, staging;
 	private MerkleTree stagingTree;
@@ -85,7 +86,8 @@ public final class Repository implements Serializable {
 		this.committed = false;
 		
 		if (this.revisions.contains(revision)) {
-			// RepositoryUtils.clearDirectory(this.baseDirectory);
+			RepositoryUtils.clearDirectory(this.baseDirectory);
+			
 			CommitUtils.restoreFromCommit(new File(this.objects, revision), this.baseDirectory);
 		} else {
 			throw new RevisionNotFoundException(revision);

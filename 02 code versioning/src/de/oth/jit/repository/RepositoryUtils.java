@@ -45,7 +45,7 @@ public final class RepositoryUtils {
 					if (element.isDirectory()) {
 						element.listFiles(this);
 					}
-
+					
 					element.delete();
 				}
 				

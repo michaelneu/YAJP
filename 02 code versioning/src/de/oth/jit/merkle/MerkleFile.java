@@ -11,7 +11,7 @@ import de.oth.jit.hashing.HashUtils;
 import de.oth.jit.repository.RepositoryUtils;
 
 final class MerkleFile extends MerkleNode {
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1317971532386324058L;
 	
 	private String content;
 	
@@ -26,11 +26,6 @@ final class MerkleFile extends MerkleNode {
 		
 		this.content = new String(fileContent);
 		this.hash = HashUtils.hashBytes(fileContent);
-	}
-	
-	@Override
-	public String toString() {
-		return String.format("{%s \\\\ %s}, align=center", this.fullPath, this.hash);
 	}
 
 	@Override

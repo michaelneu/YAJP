@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class JitRevisionCollection implements Iterable<JitRevision>, Serializable {
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 5941089379376891518L;
 	
 	private final List<JitRevision> revisions;
 	

@@ -1,18 +1,15 @@
 package de.oth.jit;
 
+import java.nio.file.NoSuchFileException;
+
 import de.oth.jit.repository.JitRevision;
 import de.oth.jit.repository.JitRevisionCollection;
 import de.oth.jit.repository.Repository;
 import de.oth.jit.repository.RepositoryFactory;
+import de.oth.jit.repository.RepositoryUtils;
 
 public final class Jit {
 	public static void main(String[] args) {
-		// args = new String[] { "init" };
-		// args = new String[] { "remove", "a/b/d" };
-		// args = new String[] { "checkout", "9d7a84510d530598cf6e4963388c3122258f8f75" };
-		args = new String[] { "tree" };
-		// args = new String[] { "commit", "remove a" };
-		
 		String option = args.length > 0 ? args[0] : null;
 		
 		switch (args.length) {
@@ -125,6 +122,8 @@ public final class Jit {
 			repo.add(path);
 			
 			RepositoryFactory.serialize(repo);
+		} catch (NoSuchFileException exception) {
+			System.out.println(String.format("Can't find '%s'", path));
 		} catch (Exception exception) {
 			System.out.println(exception.getMessage());
 		}

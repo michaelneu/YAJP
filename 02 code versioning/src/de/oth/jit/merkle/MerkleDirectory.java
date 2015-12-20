@@ -14,7 +14,7 @@ import de.oth.jit.merkle.error.ElementRemoveException;
 import de.oth.jit.merkle.error.ElementUpdateException;
 
 final class MerkleDirectory extends MerkleNode {
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 4631714828428011091L;
 	
 	private List<MerkleNode> children;
 	
@@ -154,5 +154,32 @@ final class MerkleDirectory extends MerkleNode {
 		}
 		
 		return recursiveFlattenedChildren;
+	}
+	
+	public String toString(String padding) {
+		String output = padding.substring(0, padding.length() - 1) + "+-- " + getName() + "\n";
+		
+		padding += "   ";
+		
+		int count = 0;
+		for (MerkleNode node : this.children) {
+			count++;
+			
+			output += padding + "|\n";
+			
+			if (node instanceof MerkleDirectory) {
+				MerkleDirectory directory = (MerkleDirectory)node;
+				
+				if (count == this.children.size()) {
+					output += directory.toString(padding + " ");
+				} else {
+					output += directory.toString(padding + "|");
+				}
+			} else {
+				output += padding + "+-- " + node.getName() + "\n";
+			}
+		}
+		
+		return output;
 	}
 }

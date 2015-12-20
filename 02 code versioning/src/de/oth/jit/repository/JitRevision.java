@@ -3,7 +3,7 @@ package de.oth.jit.repository;
 import java.io.Serializable;
 
 public final class JitRevision implements Serializable {
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = -1309224658023722870L;
 	
 	private final String message, revision;
 	

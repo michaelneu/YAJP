@@ -64,6 +64,7 @@ public class CommitUtils {
 						
 						List<String> directoryFileContents = RepositoryUtils.readFileLines(directoryCommitPath);
 						
+						// we don't need to create directories because a file will do this
 						restoreFromFile(directoryFileContents, directoryRealPath);
 						break;
 					
@@ -71,6 +72,7 @@ public class CommitUtils {
 						File fileCommitPath = new File(currentPath, information[1]),
 							fileRealPath = new File(currentPath, information[2]);
 						
+						fileRealPath.mkdirs();
 						RepositoryUtils.copyFile(fileCommitPath, fileRealPath);
 						break;
 						
