@@ -1,5 +1,6 @@
 package de.oth.jit.commit;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 public final class CommitDirectory extends CommitElement {
@@ -11,18 +12,23 @@ public final class CommitDirectory extends CommitElement {
 		this.children = children;
 	}
 	
-	protected String getChildrenCommitContent() {
+	protected String getChildrenCommitContent() throws NoSuchAlgorithmException {
 		String content = "";
 
 		for (Commitable child : this.children) {
-			content += String.format("%s %s\n", child.getHash(), child.getName());
+			content += String.format("%s %s %s\n", child.getIndicator(), child.getHash(), child.getName());
 		}
 		
 		return content;
 	}
+	
+	@Override
+	public String getIndicator() {
+		return "Directory";
+	}
 
 	@Override
-	public String getCommitContent() {
-		return "Directory\n" + getChildrenCommitContent();
+	public String getCommitContent() throws NoSuchAlgorithmException {
+		return getIndicator() + "\n" + getChildrenCommitContent();
 	}
 }

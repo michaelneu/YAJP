@@ -1,20 +1,22 @@
 package de.oth.jit.commit;
 
-import de.oth.jit.JitExitCode;
+import java.security.NoSuchAlgorithmException;
+
+import de.oth.jit.error.StagingTreeCorruptedException;
 
 public final class Commit implements Commitable {
 	private final String message;
 	private final CommitDirectory root;
 	
-	public Commit(String message, Commitable root) {
+	public Commit(String message, Commitable root) throws StagingTreeCorruptedException {
 		this.message = message;
 		
 		if (root instanceof CommitDirectory) {
 			this.root = (CommitDirectory)root;
 		} else {
 			this.root = null;
-			System.out.println("Staging tree corrupted. ");
-			System.exit(JitExitCode.STAGING_TREE_CORRUPTED.getCode());
+			
+			throw new StagingTreeCorruptedException();
 		}
 	}
 	
@@ -27,9 +29,18 @@ public final class Commit implements Commitable {
 	public String getName() {
 		return this.message;
 	}
+	
+	@Override
+	public String getIndicator() {
+		return "Commit";
+	}
 
 	@Override
-	public String getCommitContent() {
-		return String.format("Commit %s\n%s", this.message, this.root.getChildrenCommitContent());
+	public String getCommitContent() throws NoSuchAlgorithmException {
+		if (this.root != null) {
+			return String.format("%s %s\n%s", getIndicator(), this.message, this.root.getChildrenCommitContent());
+		} else {
+			return String.format("%s %s", getIndicator(), this.message);
+		}
 	}
 }

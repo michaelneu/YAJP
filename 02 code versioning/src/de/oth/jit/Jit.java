@@ -1,21 +1,17 @@
 package de.oth.jit;
 
-import java.util.List;
+import de.oth.jit.repository.JitRevision;
+import de.oth.jit.repository.JitRevisionCollection;
+import de.oth.jit.repository.Repository;
+import de.oth.jit.repository.RepositoryFactory;
 
 public final class Jit {
-	public static void _main(String[] args) {
-		// _main(new String[] { "init" });
-		_main(new String[] { "add", "a/b/c" });
-		_main(new String[] { "add", "a/b/c" });
-		_main(new String[] { "add", "a/b/d" });
-		_main(new String[] { "tree" });
-		// _main(new String[] { "remove", "a/b/c" });
-		// _main(new String[] { "remove", "a/b/d" });
-	}
-	
 	public static void main(String[] args) {
-		args = new String[] { "history" };
-		// args = new String[] { "commit", "my message" };
+		// args = new String[] { "init" };
+		// args = new String[] { "remove", "a/b/d" };
+		// args = new String[] { "checkout", "9d7a84510d530598cf6e4963388c3122258f8f75" };
+		args = new String[] { "tree" };
+		// args = new String[] { "commit", "remove a" };
 		
 		String option = args.length > 0 ? args[0] : null;
 		
@@ -34,8 +30,8 @@ public final class Jit {
 						printHelp();
 						break;
 						
-					case "tree":
-						printTree();
+					case "staging":
+						printStagingTree();
 						break;
 						
 					case "history": 
@@ -76,7 +72,6 @@ public final class Jit {
 					}
 				} else {
 					System.out.println("Repository not initialized yet. ");
-					System.exit(JitExitCode.REPO_NOT_INITIALIZED.getCode());
 				}
 				
 				break;
@@ -89,12 +84,10 @@ public final class Jit {
 	
 	private static void warnInvalidArgument(String option) {
 		System.out.println("Invalid argument. See \"java de.oth.jit.Jit help\" for further information. ");
-		System.exit(JitExitCode.CLI_PARSER_ERROR.getCode());
 	}
 	
 	private static void warnInvalidArgumentCount() {
 		System.out.println("Invalid argument count passed. See \"java.de.oth.jit.Jit help\" for further information. ");
-		System.exit(JitExitCode.CLI_PARSER_ERROR.getCode());
 	}
 	
 	private static void printHelp() {
@@ -102,9 +95,9 @@ public final class Jit {
 			"Jit code versioning\n" +
 			"\n" + 
 			"    help              Display this help\n" +
-			"    tree              Display the staging tree\n" +
+			"    staging           Display the staging tree\n" +
 			"    history           Print all commits so far\n" +
-			"\n" +  
+			"\n" + 
 			"    init              Initialize an empty repository\n" +
 			"    add <path>        Add a path (recursively) to the repository\n" + 
 			"    remove <path>     Remove a path from the repository\n" +
@@ -126,60 +119,87 @@ public final class Jit {
 	}
 	
 	public static void add(String path) {
-		Repository repo = RepositoryFactory.deserialize();
-		
-		repo.add(path);
-		
-		RepositoryFactory.serialize(repo);
+		try {
+			Repository repo = RepositoryFactory.deserialize();
+
+			repo.add(path);
+			
+			RepositoryFactory.serialize(repo);
+		} catch (Exception exception) {
+			System.out.println(exception.getMessage());
+		}
 	}
 	
 	public static void remove(String path) {
-		Repository repo = RepositoryFactory.deserialize();
-		
-		repo.add(path);
-		
-		RepositoryFactory.serialize(repo);
+		try {
+			Repository repo = RepositoryFactory.deserialize();
+			
+			repo.remove(path);
+			
+			RepositoryFactory.serialize(repo);
+		} catch (Exception exception) {
+			System.out.println(exception.getMessage());
+		}
 	}
 	
 	public static void commit(String message) {
-		Repository repo = RepositoryFactory.deserialize();
 		
-		String revision = repo.commit(message);
-		
-		if (revision == null) {
-			System.out.println("Nothing to commit");
-		} else {
-			System.out.println("HEAD is now at " + revision);
+		try {
+			Repository repo = RepositoryFactory.deserialize();
+			
+			String revision = repo.commit(message);
+			
+			if (revision == null) {
+				System.out.println("Nothing to commit");
+			} else {
+				System.out.println("HEAD is now at " + revision);
 
-			RepositoryFactory.serialize(repo);
+				RepositoryFactory.serialize(repo);
+			}
+		} catch (Exception exception) {
+			System.out.println(exception.getMessage());
 		}
 	}
 	
 	public static void checkout(String revision) {
-		
+		try {
+			Repository repo = RepositoryFactory.deserialize();
+			
+			repo.checkout(revision);
+			
+			RepositoryFactory.serialize(repo);
+		} catch (Exception exception) {
+			System.out.println(exception.getMessage());
+		}
 	}
 	
-	public static void printTree() {
-		Repository repo = RepositoryFactory.deserialize();
-		
-		System.out.println(repo.getStagingTree());
+	public static void printStagingTree() {
+		try {
+			Repository repo = RepositoryFactory.deserialize();
+			
+			System.out.println(repo.getStagingTree());
+		} catch (Exception exception) {
+			System.out.println(exception.getMessage());
+		}
 	}
 	
 	public static void printRevisions() {
 		if (Repository.isInitialized()) {
-			Repository repo = RepositoryFactory.deserialize();
-			
-			List<JitRevision> revisions = repo.getRevisions();
-			
-			if (revisions.size() > 0) {
-				for (JitRevision revision : revisions) {
-					System.out.println(revision.getRevision() + " " + revision.getMessage());
+			try {
+				Repository repo = RepositoryFactory.deserialize();
+				
+				JitRevisionCollection revisions = repo.getRevisions();
+				
+				if (revisions.size() > 0) {
+					for (JitRevision revision : revisions) {
+						System.out.println(revision.getRevision() + " " + revision.getMessage());
+					}
+				} else {
+					System.out.println("No revisions yet");
 				}
-			} else {
-				System.out.println("No revisions yet");
+			} catch (Exception exception) {
+				System.out.println(exception.getMessage());
 			}
-		} else {
-			System.out.println("Repository not initialized");
 		}
 	}
 }

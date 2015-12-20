@@ -8,6 +8,11 @@ public final class CommitFile extends CommitElement {
 		
 		this.content = content;
 	}
+
+	@Override
+	public String getIndicator() {
+		return "File";
+	}
 	
 	@Override
 	public String getCommitContent() {

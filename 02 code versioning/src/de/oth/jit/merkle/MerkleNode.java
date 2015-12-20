@@ -1,6 +1,7 @@
 package de.oth.jit.merkle;
 
 import java.io.Serializable;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import de.oth.jit.commit.Commitable;
@@ -21,10 +22,10 @@ abstract class MerkleNode implements Hashable, Serializable {
 		return this.name;
 	}
 	
-	public String getHash() {
+	public String getHash() throws NoSuchAlgorithmException {
 		return this.hash;
 	}
 	
 	public abstract int size();
-	public abstract List<Commitable> flatten();
+	public abstract List<Commitable> flatten() throws NoSuchAlgorithmException;
 }

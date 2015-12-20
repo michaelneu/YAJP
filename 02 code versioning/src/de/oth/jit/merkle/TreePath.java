@@ -14,9 +14,12 @@ final class TreePath {
 		this.path = path.replace("\\\\", "/");
 		
 		this.poppedParts = new ArrayList<>();
+		
 		this.stack = new Stack<>();
 		String[] pathParts = this.path.split("\\/");
 		
+		// insert all path parts into the stack in order to pop 
+		// in the correct sort order later
 		for (int i = pathParts.length - 1; i >= 0; i--) {
 			this.stack.push(pathParts[i]);
 		}

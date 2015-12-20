@@ -1,13 +1,17 @@
 package de.oth.jit.merkle;
 
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import de.oth.jit.JitExitCode;
 import de.oth.jit.commit.CommitDirectory;
 import de.oth.jit.commit.Commitable;
 import de.oth.jit.hashing.HashUtils;
+import de.oth.jit.merkle.error.ElementAddException;
+import de.oth.jit.merkle.error.ElementRemoveException;
+import de.oth.jit.merkle.error.ElementUpdateException;
 
 final class MerkleDirectory extends MerkleNode {
 	private static final long serialVersionUID = 1L;
@@ -27,7 +31,7 @@ final class MerkleDirectory extends MerkleNode {
 							.orElse(null);
 	}
 	
-	public void add(TreePath path) {
+	public void add(TreePath path) throws ElementAddException, ElementUpdateException, NoSuchAlgorithmException, IOException {
 		String top = path.pop();
 		
 		if (path.size() == 0) {
@@ -43,8 +47,7 @@ final class MerkleDirectory extends MerkleNode {
 				if (node instanceof MerkleFile) {
 					((MerkleFile)node).updateContent();
 				} else {
-					System.out.println(String.format("Can't update file '%s'", path.getCurrentPath()));
-					System.exit(JitExitCode.ADD_FILE_UPDATE_ERROR.getCode());
+					throw new ElementUpdateException(path.getCurrentPath());
 				}
 			}
 		} else {
@@ -61,13 +64,12 @@ final class MerkleDirectory extends MerkleNode {
 			} else if (subtree instanceof MerkleDirectory) {
 				((MerkleDirectory)subtree).add(path);
 			} else {
-				System.out.println(String.format("Unable to add '%s'", path.getCurrentPath()));
-				System.exit(JitExitCode.ADD_FILE_ERROR.getCode());
+				throw new ElementAddException(path.getCurrentPath());
 			}
 		}
 	}
 	
-	public void remove(TreePath path) {
+	public void remove(TreePath path) throws ElementRemoveException {
 		String top = path.pop();
 		
 		if (path.size() == 0) {
@@ -77,8 +79,7 @@ final class MerkleDirectory extends MerkleNode {
 			if (file != null) {
 				this.children.remove(file);
 			} else {
-				System.out.println(String.format("Unable to remove '%s'", file));
-				System.exit(JitExitCode.REMOVE_FILE_ERROR.getCode());
+				throw new ElementRemoveException(path.getFullPath());
 			}
 		} else {
 			// follow the path down the tree
@@ -117,10 +118,12 @@ final class MerkleDirectory extends MerkleNode {
 	}
 
 	@Override
-	public String getHash() {
-		String hashesCombined = String.join("", this.children.stream()
-															 .map(e -> e.getHash())
-															 .collect(Collectors.toList()));
+	public String getHash() throws NoSuchAlgorithmException {
+		String hashesCombined = "";
+		
+		for (MerkleNode node : this.children) {
+			hashesCombined += node.getHash();
+		}
 		
 		return HashUtils.hashString(hashesCombined);
 	}
@@ -131,33 +134,25 @@ final class MerkleDirectory extends MerkleNode {
 	}
 	
 	@Override
-	public List<Commitable> flatten() {
+	public List<Commitable> flatten() throws NoSuchAlgorithmException {
 		List<Commitable> recursiveFlattenedChildren = new ArrayList<>();
 		
-		List<Commitable> layerChildren = this.children.stream()
-													.map(e -> e.flatten().stream()
-																		 .findFirst()
-																		 .orElse(null))
-													.filter(e -> e != null)
-													.collect(Collectors.toList());
+		List<Commitable> layerChildren = new ArrayList<>();
 		
-		recursiveFlattenedChildren.add(new CommitDirectory(this.fullPath, getName(), this.getHash(), layerChildren));
+		for (MerkleNode element : this.children) {
+			List<Commitable> elementFlattened = element.flatten();
+			
+			if (elementFlattened.size() > 0) {
+				layerChildren.add(elementFlattened.get(0));
+			}
+		}
+		
+		recursiveFlattenedChildren.add(new CommitDirectory(this.fullPath, getName(), getHash(), layerChildren));
 		
 		for (MerkleNode node : this.children) {
 			recursiveFlattenedChildren.addAll(node.flatten());
 		}
 		
 		return recursiveFlattenedChildren;
-	}
-	
-	@Override
-	public String toString() {
-		String output = "";
-		
-		for (MerkleNode node : this.children) {
-			output += String.format("[%s] ", node.toString());
-		}
-		
-		return String.format("{%s \\\\ %s}, draw, align=center %s", this.fullPath, getHash(), output);
 	}
 }

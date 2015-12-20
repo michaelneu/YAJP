@@ -1,7 +1,7 @@
 package de.oth.jit.commit;
 
 public abstract class CommitElement implements Commitable {
-	protected String path, hash, name;
+	protected final String path, hash, name;
 	
 	public CommitElement(String path, String name, String hash) {
 		this.path = path;
@@ -21,9 +21,5 @@ public abstract class CommitElement implements Commitable {
 	@Override
 	public String getHash() {
 		return this.hash;
-	}
-
-	public static CommitElement restoreElement(String content) {
-		return null;
 	}
 }

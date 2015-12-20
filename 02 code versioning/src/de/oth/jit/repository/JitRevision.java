@@ -1,4 +1,4 @@
-package de.oth.jit;
+package de.oth.jit.repository;
 
 import java.io.Serializable;
 
@@ -18,5 +18,9 @@ public final class JitRevision implements Serializable {
 	
 	public String getRevision() {
 		return this.revision;
+	}
+	
+	public JitRevision clone() {
+		return new JitRevision(this.message, this.revision);
 	}
 }
