@@ -1,0 +1,21 @@
+#!/bin/bash
+#
+##################################################################################
+# 
+# This script compiles the Jit CVS and makes it available in the current shell.
+# 
+# Setup: 
+# 	$ . jit-init
+# 	
+# Usage: 
+# 	$ jit init
+# or: 
+# 	$ Jit init
+#
+##################################################################################
+
+gradle jar
+rm build/ .gradle/ -rf
+
+alias jit="java -jar Jit.jar"
+alias Jit=jit

@@ -1,0 +1,26 @@
+
+apply plugin: "java"
+
+sourceSets {
+	main {
+		java {
+			srcDir 'src'
+		}
+	}
+}
+
+libsDirName = "../"
+
+jar {
+	archiveName = "Jit.jar"
+
+	manifest {
+		attributes "Main-Class": "de.oth.jit.Jit"
+	}
+
+	from {
+		configurations.compile.collect {
+			it.isDirectory() ? it : zipTree(it)
+		}
+	}
+}
