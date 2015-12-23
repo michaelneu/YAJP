@@ -86,7 +86,11 @@ public final class Repository implements Serializable {
 	public void add(String path) throws ElementAddException, ElementUpdateException, NoSuchAlgorithmException, IOException {
 		this.committed = false;
 		
-		this.stagingTree.add(path);
+		File file = new File(path);
+		
+		if (file.exists() && file.isFile()) {
+			this.stagingTree.add(path);
+		}
 	}
 	
 	/**
@@ -99,7 +103,11 @@ public final class Repository implements Serializable {
 	public void remove(String path) throws ElementRemoveException {
 		this.committed = false;
 		
-		this.stagingTree.remove(path);
+		File file = new File(path);
+		
+		if (file.exists() && file.isFile()) {
+			this.stagingTree.remove(path);
+		}
 	}
 	
 	/**
